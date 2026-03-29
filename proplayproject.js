@@ -1,10 +1,37 @@
-const canvas = document.querySelector('.vjs-secure-watermark-canvas');
-if (canvas) {
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage = () => {};
-  ctx.fillText = () => {};
-  ctx.fillRect = () => {};
-}
+(function() {
+  function killWatermark() {
+    const canvas = document.querySelector('.vjs-secure-watermark-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage = () => {};
+      ctx.fillText = () => {};
+      ctx.fillRect = () => {};
+      ctx.strokeText = () => {};
+      ctx.stroke = () => {};
+      ctx.fill = () => {};
+      console.log('[watermark] Canvas found and neutered.');
+      return true;
+    }
+    return false;
+  }
+
+  // Try immediately
+  if (!killWatermark()) {
+    // If not found, watch for it
+    const observer = new MutationObserver(() => {
+      if (killWatermark()) {
+        observer.disconnect(); // stop watching once done
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
+
+    console.log('[watermark] Watching for canvas...');
+  }
+})();
 
 const killWatermark = () => {
     const el = document.getElementById("watermarkOverlay");
