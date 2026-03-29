@@ -1,3 +1,11 @@
+const canvas = document.querySelector('.vjs-secure-watermark-canvas');
+if (canvas) {
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage = () => {};
+  ctx.fillText = () => {};
+  ctx.fillRect = () => {};
+}
+
 const killWatermark = () => {
     const el = document.getElementById("watermarkOverlay");
     if (el) el.remove();
@@ -37,11 +45,3 @@ observer.observe(document.body, { childList: true, subtree: true });
 
     console.log("Background play hack active");
 })();
-
-const canvas = document.querySelector('.vjs-secure-watermark-canvas');
-if (canvas) {
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage = () => {};
-  ctx.fillText = () => {};
-  ctx.fillRect = () => {};
-}
