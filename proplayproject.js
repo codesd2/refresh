@@ -72,3 +72,7 @@ observer.observe(document.body, { childList: true, subtree: true });
 
     console.log("Background play hack active");
 })();
+
+const style = document.createElement("style");
+style.innerHTML = `.user-overlay { display: none !important; }`;
+document.head.appendChild(style);
