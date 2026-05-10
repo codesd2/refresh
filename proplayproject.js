@@ -77,6 +77,8 @@ const style = document.createElement("style");
 style.innerHTML = `.user-overlay { display: none !important; }`;
 document.head.appendChild(style);
 
+Banglore
+
 (function () {
 
     // Kill watermark
