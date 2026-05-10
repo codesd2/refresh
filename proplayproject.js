@@ -77,4 +77,31 @@ const style = document.createElement("style");
 style.innerHTML = `.user-overlay { display: none !important; }`;
 document.head.appendChild(style);
 
-document.querySelectorAll('.user-overlay').forEach(el => el.remove());
+(function () {
+
+    function hideOverlay() {
+        document.querySelectorAll('.user-overlay').forEach((el) => {
+            el.style.display = 'none';
+            el.style.visibility = 'hidden';
+            el.style.opacity = '0';
+            el.remove();
+        });
+    }
+
+    // Initial run
+    hideOverlay();
+
+    // Keep checking continuously
+    setInterval(hideOverlay, 500);
+
+    // Detect dynamically added overlays
+    const observer = new MutationObserver(() => {
+        hideOverlay();
+    });
+
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+
+})();
