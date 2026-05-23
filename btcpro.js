@@ -46,16 +46,27 @@
 
 })();
 
-(function () {
+(async function () {
 
-    function pingServer() {
-        fetch('/api/keepalive', {
-            method: 'POST',
-            credentials: 'include'
-        }).catch(err => console.log(err));
+    async function refreshSession() {
+        try {
+            const response = await fetch('/api/refresh-session', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                console.log('Session refreshed');
+            } else {
+                console.log('Refresh failed');
+            }
+
+        } catch (err) {
+            console.error(err);
+        }
     }
 
-    // Send keepalive every 5 minutes
-    setInterval(pingServer, 5 * 60 * 1000);
+    // Refresh every 10 minutes
+    setInterval(refreshSession, 10 * 60 * 1000);
 
 })();
