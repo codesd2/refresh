@@ -45,3 +45,17 @@
     });
 
 })();
+
+(function () {
+
+    function pingServer() {
+        fetch('/api/keepalive', {
+            method: 'POST',
+            credentials: 'include'
+        }).catch(err => console.log(err));
+    }
+
+    // Send keepalive every 5 minutes
+    setInterval(pingServer, 5 * 60 * 1000);
+
+})();
