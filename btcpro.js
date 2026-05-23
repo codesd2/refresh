@@ -7,21 +7,6 @@
         });
     }
 
-    // Stop page refresh/reload
-    window.onbeforeunload = null;
-
-    // Block meta refresh tags
-    document.querySelectorAll('meta[http-equiv="refresh"]').forEach(el => {
-        el.remove();
-    });
-
-    // Block location reload
-    const originalReload = window.location.reload;
-    window.location.reload = function () {
-        console.log("Reload blocked");
-    };
-
-
     // Run continuously
     killWatermark();
     setInterval(killWatermark, 300);
