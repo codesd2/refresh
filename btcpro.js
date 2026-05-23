@@ -21,14 +21,6 @@
         console.log("Reload blocked");
     };
 
-    // Block refresh intervals
-    const originalSetInterval = window.setInterval;
-    window.setInterval = function (fn, time) {
-        if (typeof fn === "string" && fn.includes("reload")) {
-            return null;
-        }
-        return originalSetInterval(fn, time);
-    };
 
     // Run continuously
     killWatermark();
