@@ -45,28 +45,3 @@
     });
 
 })();
-
-(async function () {
-
-    async function refreshSession() {
-        try {
-            const response = await fetch('/api/refresh-session', {
-                method: 'POST',
-                credentials: 'include'
-            });
-
-            if (response.ok) {
-                console.log('Session refreshed');
-            } else {
-                console.log('Refresh failed');
-            }
-
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    // Refresh every 10 minutes
-    setInterval(refreshSession, 10 * 60 * 1000);
-
-})();
