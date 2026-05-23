@@ -1,10 +1,15 @@
-(function () {
+    // Run continuously
+    killWatermark();
+    setInterval(killWatermark, 300);
 
-    // Kill watermark
-    function killWatermark() {
-        document.querySelectorAll('.user-overlay').forEach(el => {
-            el.remove();
-        });
-    }
+    // Watch dynamic DOM changes
+    const observer = new MutationObserver(() => {
+        killWatermark();
+    });
 
-   
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+
+})();
