@@ -1,52 +1,81 @@
 (function () {
 
-    console.log("Protection script loaded");
-
-    // =========================
-    // REMOVE WATERMARK
-    // =========================
+    // Kill watermark
     function killWatermark() {
-
-        const selectors = [
-            '.user-overlay',
-            '#watermarkOverlay',
-            '.watermark',
-            '.overlay',
-            '.vjs-secure-watermark-canvas'
-        ];
-
-        selectors.forEach(selector => {
-            document.querySelectorAll(selector).forEach(el => {
-                el.remove();
-            });
+        document.querySelectorAll('.user-overlay').forEach(el => {
+            el.remove();
         });
     }
 
+    // Stop page refresh/reload
+    window.onbeforeunload = null;
+
+    // Block meta refresh tags
+    document.querySelectorAll('meta[http-equiv="refresh"]').forEach(el => {
+        el.remove();
+    });
+
+    // Block location reload
+    const originalReload = window.location.reload;
+    window.location.reload = function () {
+        console.log("Reload blocked");
+    };
+
+    // Block refresh intervals
+    const originalSetInterval = window.setInterval;
+    window.setInterval = function (fn, time) {
+        if (typeof fn === "string" && fn.includes("reload")) {
+            return null;
+        }
+        return originalSetInterval(fn, time);
+    };
+
+    // Run continuously
+    killWatermark();
+    setInterval(killWatermark, 300);
+
+    // Watch dynamic DOM changes
+    const observer = new MutationObserver(() => {
+        killWatermark();
+    });
+
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
+
+})();
+
+(function () {
+
+    console.log("Auto logout blocker active");
+
     // =========================
-    // BLOCK AUTO LOGOUT
+    // KEEP SESSION ALIVE
     // =========================
 
-    // Fake user activity
     function keepSessionAlive() {
 
         try {
 
+            // Simulate mouse movement
             document.dispatchEvent(new MouseEvent('mousemove', {
                 bubbles: true,
                 cancelable: true,
                 view: window
             }));
 
+            // Simulate keyboard activity
             document.dispatchEvent(new KeyboardEvent('keydown', {
                 bubbles: true,
                 cancelable: true,
                 key: 'Shift'
             }));
 
+            // Trigger focus event
             window.dispatchEvent(new Event('focus'));
-            window.dispatchEvent(new Event('mousemove'));
 
-            console.log("Session kept alive");
+            console.log("Session refreshed");
 
         } catch (e) {
             console.log("Keep alive error:", e);
@@ -55,34 +84,6 @@
 
     // Run every 20 seconds
     setInterval(keepSessionAlive, 20000);
-
-    // =========================
-    // BLOCK REFRESH / RELOAD
-    // =========================
-
-    window.onbeforeunload = null;
-
-    // Remove meta refresh
-    document.querySelectorAll('meta[http-equiv="refresh"]').forEach(el => {
-        el.remove();
-    });
-
-    // Safe reload block
-    try {
-
-        const originalReload = window.location.reload;
-
-        Object.defineProperty(window.location, 'reload', {
-            configurable: false,
-            writable: false,
-            value: function () {
-                console.log("Reload blocked");
-            }
-        });
-
-    } catch (e) {
-        console.log("Reload protection fallback active");
-    }
 
     // =========================
     // BLOCK LOGOUT REDIRECTS
@@ -95,9 +96,8 @@
 
         if (
             url.includes("logout") ||
-            url.includes("session") ||
             url.includes("expired") ||
-            url.includes("login")
+            url.includes("session")
         ) {
 
             console.log("Logout redirect blocked:", url);
@@ -111,9 +111,8 @@
 
         if (
             url.includes("logout") ||
-            url.includes("session") ||
             url.includes("expired") ||
-            url.includes("login")
+            url.includes("session")
         ) {
 
             console.log("Logout replace blocked:", url);
@@ -122,56 +121,5 @@
 
         return originalReplace.call(window.location, url);
     };
-
-    // =========================
-    // BLOCK REFRESH INTERVALS
-    // =========================
-
-    const originalSetInterval = window.setInterval;
-
-    window.setInterval = function (fn, time) {
-
-        try {
-
-            const fnText = fn.toString();
-
-            if (
-                fnText.includes("reload") ||
-                fnText.includes("logout") ||
-                fnText.includes("location")
-            ) {
-
-                console.log("Blocked suspicious interval");
-                return null;
-            }
-
-        } catch (e) {}
-
-        return originalSetInterval(fn, time);
-    };
-
-    // =========================
-    // CONTINUOUS PROTECTION
-    // =========================
-
-    killWatermark();
-
-    setInterval(() => {
-        killWatermark();
-        keepSessionAlive();
-    }, 500);
-
-    // =========================
-    // DOM OBSERVER
-    // =========================
-
-    const observer = new MutationObserver(() => {
-        killWatermark();
-    });
-
-    observer.observe(document.documentElement, {
-        childList: true,
-        subtree: true
-    });
 
 })();
