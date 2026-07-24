@@ -1,36 +1,129 @@
-// ==UserScript==
-// @name         Hide RWITC Watermark
-// @match        https://play.rwitc.com/*
-// @run-at       document-start
-// ==/UserScript==
+(function() {
+  function killWatermark() {
+    const canvas = document.querySelector('.vjs-secure-watermark-canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage = () => {};
+      ctx.fillText = () => {};
+      ctx.fillRect = () => {};
+      ctx.strokeText = () => {};
+      ctx.stroke = () => {};
+      ctx.fill = () => {};
+      console.log('[watermark] Canvas found and neutered.');
+      return true;
+    }
+    return false;
+  }
 
-(function () {
-    'use strict';
+  // Try immediately
+  if (!killWatermark()) {
+    // If not found, watch for it
+    const observer = new MutationObserver(() => {
+      if (killWatermark()) {
+        observer.disconnect(); // stop watching once done
+      }
+    });
 
-    // Inject CSS immediately
-    const style = document.createElement("style");
-    style.textContent = `
-        #wm {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-        }
-    `;
-    document.documentElement.appendChild(style);
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
 
-    // Keep hiding if the site recreates it
-    const hide = () => {
-        const wm = document.getElementById("wm");
-        if (wm) {
-            wm.style.display = "none";
-            wm.style.visibility = "hidden";
-            wm.style.opacity = "0";
-        }
+    console.log('[watermark] Watching for canvas...');
+  }
+})();
+
+const killWatermark = () => {
+    const el = document.getElementById("watermarkOverlay");
+    if (el) el.remove();
+};
+
+killWatermark(); // Kill immediately if it exists on page load
+
+const observer = new MutationObserver(killWatermark);
+observer.observe(document.body, { childList: true, subtree: true });
+
+(() => {
+    // force visibility
+    Object.defineProperty(document, 'hidden', { get: () => false });
+    Object.defineProperty(document, 'visibilityState', { get: () => 'visible' });
+    document.hasFocus = () => true;
+
+    // block visibility events
+    ['visibilitychange', 'blur', 'focus'].forEach(event => {
+        window.addEventListener(event, e => {
+            e.stopImmediatePropagation();
+        }, true);
+    });
+
+    // keep videos playing
+    setInterval(() => {
+        document.querySelectorAll('video').forEach(v => {
+            if (v.paused) {
+                v.play().catch(()=>{});
+            }
+        });
+    }, 500);
+
+    // override pause
+    HTMLMediaElement.prototype.pause = function() {
+        console.log("Pause blocked");
     };
 
-    hide();
-    new MutationObserver(hide).observe(document.documentElement, {
+    console.log("Background play hack active");
+})();
+
+const style = document.createElement("style");
+style.innerHTML = `.user-overlay { display: none !important; }`;
+document.head.appendChild(style);
+
+Banglore
+
+(function () {
+
+    // Kill watermark
+    function killWatermark() {
+        document.querySelectorAll('.user-overlay').forEach(el => {
+            el.remove();
+        });
+    }
+
+    // Stop page refresh/reload
+    window.onbeforeunload = null;
+
+    // Block meta refresh tags
+    document.querySelectorAll('meta[http-equiv="refresh"]').forEach(el => {
+        el.remove();
+    });
+
+    // Block location reload
+    const originalReload = window.location.reload;
+    window.location.reload = function () {
+        console.log("Reload blocked");
+    };
+
+    // Block refresh intervals 
+    const originalSetInterval = window.setInterval;
+    window.setInterval = function (fn, time) {
+        if (typeof fn === "string" && fn.includes("reload")) {
+            return null;
+        }
+        return originalSetInterval(fn, time);
+    };
+
+    // Run continuously
+    killWatermark();
+    setInterval(killWatermark, 300);
+
+    // Watch dynamic DOM changes
+    const observer = new MutationObserver(() => {
+        killWatermark();
+    });
+
+    observer.observe(document.documentElement, {
         childList: true,
         subtree: true
     });
+
+
 })();
