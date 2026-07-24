@@ -102,11 +102,7 @@ Banglore
         console.log("Reload blocked");
     };
 
-    // Block refresh intervals
-    const style = document.createElement("style");
-style.textContent = "#wm { display: none !important; }";
-document.head.appendChild(style);
-  
+    // Block refresh intervals 
     const originalSetInterval = window.setInterval;
     window.setInterval = function (fn, time) {
         if (typeof fn === "string" && fn.includes("reload")) {
