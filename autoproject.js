@@ -1,7 +1,7 @@
 const video = document.querySelector('video');
 
 const btn = document.createElement('button');
-btn.textContent = '📺 PiP';
+btn.textContent = '📺DISABLE📺';
 btn.style.cssText = `
     position: fixed;
     top: 20px;
